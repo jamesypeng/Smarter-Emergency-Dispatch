@@ -4,7 +4,6 @@ from os import listdir
 
 def clean_wx_data():
 	"""Grabs all .csv files in a directory & aggregates based on date"""
-	suffix = '.csv'
 	suffix = ".csv"
 	filenames = listdir()
 	files = [f for f in filenames if f.endswith(suffix)]
