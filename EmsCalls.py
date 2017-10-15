@@ -224,6 +224,7 @@ class EmsCalls:
              
     def resample(self, rule = '1H'):
         '''
+        Resample the timestamp data into 1 hour interval
         
         
         '''
@@ -235,7 +236,7 @@ class EmsCalls:
         #   'count': dont not include NA
         #   'size' : include NA
         #   'nunique' : count distinct, does not include NA
-        #  'mean', 'sum', 'sd', 'first', 'last'
+        #   'mean', 'sum', 'sd', 'first', 'last'
         # ems_calls._df2['cnt_incident'] = grp['Incident_Number'].agg('count')
         agg_dict = {'Unit_ID': 'nunique',
                     'Incident_Number': ['count','nunique'],
@@ -262,9 +263,9 @@ class EmsCalls:
                     'ALS_Unit': ['first', 'nunique'], 
                     'Call_Type_Group': ['first', 'nunique'],
                     'Final_Priority': ['first', 'nunique'],            
-                    'Number_of_Alarms' : ['first', 'nunique'],
+                    'Number_of_Alarms' : ['first', 'nunique','mean'],
                     'Unit_Type': ['first', 'nunique'],
-                    'Unit_sequence_in_call_dispatch': ['first', 'nunique'],          
+                    'Unit_sequence_in_call_dispatch': ['max','nunique'],          
                     'Fire_Prevention_District': ['first', 'nunique'],
                     'Supervisor_District': ['first', 'nunique'],          
                     'Neighborhooods_-_Analysis_Boundaries' : ['first', 'nunique'],                        
@@ -274,11 +275,47 @@ class EmsCalls:
                     }
         self._df2 = self._grp.agg(agg_dict)
         
+
+        # after the aggregation, the column is two level hierarchy index
+        # For convenience, I rename the column into single level
+        #ems_calls._df2.columns        
+        
+        new_col_index = []
+        for c in self._df2.columns.values:    
+            # if the 2nd level name is not ''
+            if len(c[1]) > 0 : 
+                new_col_index.append("_".join(c))
+            else: 
+                new_col_index.append(c[0])
+        
+        self._df2.columns = new_col_index     
+        
         display(self._df2.head())
         display(self._df2.tail())
-        display(self._df2.sample(n=5))
+        display(self._df2.sample(n=5))        
         
         
+        #ts_col = ('Received_DtTm', 'min')
+        #zip_code_col = ('Zipcode_of_Incident', 'first')
+        #ressample_dict = {
+        #    ('Call_Number','') : ['nunique']
+        #    }
+        ts_col = 'Received_DtTm_min'
+        zip_code_col = 'Zipcode_of_Incident_first'
+        ressample_dict = {'Call_Number': lambda x: x.nunique(), 
+                          'Box_nunique': lambda x: (x.nunique(),x.count()),
+                          'Unit_sequence_in_call_dispatch_max': np.sum,
+                          'Number_of_Alarms_mean' : np.sum}      
+        
+        #ems_resampled = self._df2.set_index(ts_col)
+        #ems_resampled.head()
+        #ems_resampled.columns
+        
+        self._resampled = self._df2.set_index(ts_col).groupby([zip_code_col]).resample('1H').agg(ressample_dict)        
+        
+        display(self._resampled.head())
+        display(self._resampled.tail())
+        display(self._resampled.sample(n=5))          
         
     def clean_addr(self):
 
@@ -292,7 +329,8 @@ class EmsCalls:
                 ('NEWLINE', r'\n'),           # Line endings
                 ('STOP',    r'of'),           # stopwords, of 
                 ('BLOCK',   r'block'),        # 'word' block
-                ('PUNC',    r'[@\.+\-*,:]'),   # punctuations
+                ('SEMICOL', r'[:]'),
+                ('PUNC',    r'[@\.+\-*,]'),   # punctuations
                 ('SKIP',    r'[ \t]+'),       # Skip over spaces and tabs
                 ('MISMATCH',r'.'),            # Any other character
             ]
@@ -316,16 +354,6 @@ class EmsCalls:
                     pos = mo.start() - line_start
                     yield Token(kind, value, line_num, pos)
         
-        #statements = '''
-            #IF quantity THEN
-                #total := total + price * quantity;
-                #tax := price * 0.05;
-            #ENDIF;
-        #'''
-        
-        #for token in tokenize(statements):
-            #print(token)     
-            
             
         address = "1000 Block of LARKIN ST"
         for token in tokenize(address):
