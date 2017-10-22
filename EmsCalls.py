@@ -9,6 +9,8 @@ import scipy
 import sqlite3
 from sqlalchemy import create_engine
 from sodapy import Socrata
+from pandas.tseries.holiday import USFederalHolidayCalendar
+import geopandas
 
 from IPython.display import display, HTML
 
@@ -123,6 +125,20 @@ class EmsCalls:
         print("Replace spaces in column names with _ ")
         self._df.columns = [x.strip().replace(' ', '_') for x in self._df.columns]
         
+
+        # Removing records without an on-scene time
+        print('remove records without on-scene_time')
+        self._df = self._df[~pd.isnull(self._df['On_Scene_DtTm'])]
+
+        # Filtering down to the top three incident call types and medic/private units
+        call_type_keep = ['Medical Incident', 'Traffic Collision', 'Structure Fire']
+        unit_type_keep = ['MEDIC','PRIVATE']
+        print('Keep Call Type = {}'.format(call_type_keep))
+        print('Keep Unit Type = {}'.format(unit_type_keep))
+
+        self._df = self._df[(self._df['Call_Type'].isin(call_type_keep)) & 
+                            (self._df['Unit_Type'].isin(unit_type_keep))]
+
         # Convert to datetime format
         print("Convert dattime strings to datetime object")
         datetime_cols = {'Call_Date' : '%m/%d/%Y', 
@@ -143,25 +159,38 @@ class EmsCalls:
         
         to_datetime(self._df, datetime_cols)        
         
-        print("Extract time features - Year, Month, Day, Hour, Min, Weekday")
-        self._df['Received_Hour'] = self._df['Received_DtTm'].map( lambda x: x.hour)
-        self._df['Received_Min'] = self._df['Received_DtTm'].map( lambda x: x.minute)
-        self._df['Received_Year'] = self._df['Received_DtTm'].map( lambda x: x.year)
-        self._df['Received_Month'] = self._df['Received_DtTm'].map( lambda x: x.month)
-        self._df['Received_Day'] = self._df['Received_DtTm'].map( lambda x: x.day)
-        self._df['Received_Weekday'] = self._df['Received_DtTm'].map( lambda x: x.weekday())        
+        print("Extract time features - year, month, day_of_month, hour_of_day, day_of_year, week_of_year")
         
+        # self._df['Received_Hour'] = self._df['Received_DtTm'].map( lambda x: x.hour)
+        # self._df['Received_Min'] = self._df['Received_DtTm'].map( lambda x: x.minute)
+        # self._df['Received_Year'] = self._df['Received_DtTm'].map( lambda x: x.year)
+        # self._df['Received_Month'] = self._df['Received_DtTm'].map( lambda x: x.month)
+        # self._df['Received_Day'] = self._df['Received_DtTm'].map( lambda x: x.day)
+        # self._df['Received_Weekday'] = self._df['Received_DtTm'].map( lambda x: x.weekday()) 
+        
+        self._df['year'], self._df['month'], self._df['day_of_month'], \
+            self._df['hour_of_day'], self._df['day_of_year'], \
+            self._df['week_of_year'],self._df['day_of_week'], self._df['is_weekend'] = \
+            zip(*self._df['Received_DtTm'].map(lambda val: [val.year, val.month, val.day, val.hour, \
+                                                        val.dayofyear, val.week, val.weekday(), \
+                                                        val.weekday() in [5,6]]))
+
+        # Adding flag for holidays. Includes days that holidays are observed.
+        # Getting list of US Federal Holidays (includes observed)
+        holidays = USFederalHolidayCalendar().holidays(start='2000-01-01', end='2018-01-01')
+        self._df['is_holiday'] = self._df['Received_DtTm'].isin(holidays)
+
         self._df['Call_Number'] = self._df['Call_Number'].astype(int)
         self._df['Incident_Number'] = self._df['Incident_Number'].astype(int)        
         
 
+
         # Convery ZIP code to string format
-      
         self._df['Zipcode_of_Incident'] = self._df['Zipcode_of_Incident'].map(
             lambda x: str(int(x)) if pd.notnull(x) else zip_na)        
         
         print('extract GPS coordinates')
-        def extract_coord(df, col_from, col_to = ['latitude', 'longitude']):
+        def extract_coord(df, col_from, col_to = ['lat', 'lon']):
             '''
                 col_coord: column which stores GPS coordinates information, in the format of  "(lat, lng)"
             
@@ -170,7 +199,30 @@ class EmsCalls:
                                          expand=True)
             return df
         
-        self._df = extract_coord(self._df, 'Location')      
+        self._df = extract_coord(self._df, 'Location')
+
+        # Get ZCTA basedo n lat and lng
+        def get_zcta(point):
+            '''
+            Takes a geopandas/shapely longitude/latitude point object and returns
+            the US Census Zip Code Tabulation Area containing it.
+            INPUT: Point must have longitude first, since it expects an x,y coordinate
+            OUTPUT: The ZCTA code, or None if not found in San Francisco County
+            '''
+            zcta = gdf.ZCTA5CE10[gdf.geometry.contains(point)]
+            if len(zcta) > 0:
+                return zcta.values[0]
+            else:
+                return None
+
+        ZCTA_SHP_PATH = './sf_zcta/sf_zcta.shp'
+
+        gdf = geopandas.read_file(ZCTA_SHP_PATH)
+
+        # Finding ZCTA for each point
+        self._df['zcta'] = self._df.apply(lambda row: get_zcta(geopandas.geoseries.Point(float(row.lon),
+                                                                                         float(row.lat))), axis=1)
+
         
         print('Convert to category')
         def to_category(df, columns = None):
@@ -182,8 +234,9 @@ class EmsCalls:
                  'Zipcode_of_Incident', 'Unit_ID', 'Unit_Type', 
                  'Fire_Prevention_District', 'Supervisor_District', 'Incident_Number',
                  'Neighborhooods_-_Analysis_Boundaries', 'Call_Type_Group',
-                 'Received_Year', 'Received_Month', 'Received_Day',
-                 'Received_Weekday', 'Received_Hour', 'Received_Min'
+                 'year', 'month', 'day_of_month',
+                 'hour_of_day', 'day_of_year', 'week_of_year', 
+                 'day_of_week', 'is_weekend'
                 ]  
         
         to_category(self._df, cols)     
@@ -228,7 +281,6 @@ class EmsCalls:
         
         
         '''
-
         grp = self._df.groupby('Call_Number', as_index=False)
         self._grp = grp
         
@@ -295,13 +347,13 @@ class EmsCalls:
         display(self._df2.sample(n=5))        
         
         
-        #ts_col = ('Received_DtTm', 'min')
-        #zip_code_col = ('Zipcode_of_Incident', 'first')
+        #ts = ('Received_DtTm', 'min')
+        #zip_code = ('Zipcode_of_Incident', 'first')
         #ressample_dict = {
         #    ('Call_Number','') : ['nunique']
         #    }
-        ts_col = 'Received_DtTm_min'
-        zip_code_col = 'Zipcode_of_Incident_first'
+        ts = 'Received_DtTm_min'
+        zip_code = 'Zipcode_of_Incident_first'
         ressample_dict = {'Call_Number': lambda x: x.nunique(), 
                           'Box_nunique': lambda x: (x.nunique(),x.count()),
                           'Unit_sequence_in_call_dispatch_max': np.sum,
@@ -311,7 +363,7 @@ class EmsCalls:
         #ems_resampled.head()
         #ems_resampled.columns
         
-        self._resampled = self._df2.set_index(ts_col).groupby([zip_code_col]).resample('1H').agg(ressample_dict)        
+        self._resampled = self._df2.set_index(ts).groupby([zip_code]).resample('1H').agg(ressample_dict)        
         
         display(self._resampled.head())
         display(self._resampled.tail())
