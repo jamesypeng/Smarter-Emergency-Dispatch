@@ -12,7 +12,9 @@ class Predictions(models.Model):
     week_of_year = models.IntegerField()
     day_of_week = models.IntegerField()
     is_weekend = models.BooleanField()
-    Call_counts = models.FloatField()
+    call_counts = models.FloatField()
+
+
 
 class Ambulance(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -37,7 +39,10 @@ class Current_predictions(models.Model):
     week_of_year = models.IntegerField()
     day_of_week = models.IntegerField()
     is_weekend = models.BooleanField()
-    Call_counts = models.FloatField()
+    call_counts = models.FloatField()
+
+    def __str__(self):
+        return self.zcta + "_" + str(self.call_counts)
 
 class Current_ambulance(models.Model):
     amb_id = models.IntegerField(primary_key=True)
@@ -46,6 +51,10 @@ class Current_ambulance(models.Model):
     AVAILABLE = models.IntegerField()
 
 class Current_emscall(models.Model):
+    addr = models.CharField(max_length=200, default="111 Post Street, San Francisco CA")
     LAT = models.FloatField()
     LONG = models.FloatField()
     time = models.DateTimeField(auto_now_add=True)	
+
+    def __str__(self):
+        return self.addr
