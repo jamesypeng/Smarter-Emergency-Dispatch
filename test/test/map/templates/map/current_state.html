@@ -1,4 +1,15 @@
-<html>
+<!-- <html>
     <p>Hi there!</p>
     <p>It works!</p>
-</html>
+</html> -->
+
+{% extends 'map/base.html' %}
+
+{% block content %}
+    <h2>Current Call</h2>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Submit</button>
+    </form>
+    
+{% endblock %}
