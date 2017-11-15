@@ -38,7 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'map',
+    'djcelery',
 ]
+
+import djcelery
+djcelery.setup_loader()
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

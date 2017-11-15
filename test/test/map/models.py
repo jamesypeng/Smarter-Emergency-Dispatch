@@ -14,7 +14,8 @@ class Predictions(models.Model):
     is_weekend = models.BooleanField()
     call_counts = models.FloatField()
 
-
+   #def __str__(self):
+        #return self.zcta
 
 class Ambulance(models.Model):
     id = models.IntegerField(primary_key=True)

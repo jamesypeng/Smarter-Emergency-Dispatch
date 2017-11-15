@@ -21,5 +21,5 @@ for line in reader_amb:
 for line2 in reader_ems:
      t2 = Predictions(zcta=line2[0], year=line2[1], month=line2[2],day_of_month=line2[3],
      	hour_of_day=line2[4], day_of_year=line2[5],week_of_year=line2[6],day_of_week=line2[7],
-     	is_weekend=line2[8],Call_counts=line2[9])
+     	is_weekend=line2[8],call_counts=line2[9])
      t2.save()
