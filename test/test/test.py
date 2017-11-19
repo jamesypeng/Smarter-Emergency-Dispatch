@@ -1,4 +1,6 @@
-from map.models import Current_ambulance, Predictions,Current_predictions
+from map.models import Current_ambulance, Predictions,Current_predictions,Current_emscall,Ambulance, EMS_Calls
+
+
 import datetime
 
 month = datetime.datetime.now().month
@@ -17,8 +19,6 @@ for line in t:
      	is_weekend=line[9],call_counts=line[10])
     t2.save()
 
-
-from map.models import Current_ambulance, Predictions,Current_predictions,Current_emscall,Ambulance, EMS_Calls
 
 
 def store_amb_record():
@@ -65,6 +65,121 @@ def update_current_ems(address):
 
 
 #for testing
-t2 = Current_emscall(addr='110 sutter street',LAT=00.0,LONG=00.0,time=str(datetime.now()))
+t2 = Current_emscall(addr='110 sutter street',LAT=37.784172,LONG=-122.401558)
+
+
+def add_ambmarker(smap,lat,long,amb_name):
+    folium.Marker([lat, long], icon=folium.Icon(icon='plus',color='blue'),
+                  popup="Amb #:" + str(amb_name)
+                 ).add_to(smap)
+    
+def used_ambmarker(smap,lat,long,amb_name):
+    folium.Marker([lat, long], icon=folium.Icon(icon='plus',color='gray'),
+                  popup="Amb #:" + str(amb_name)
+                 ).add_to(smap)
+    
+def add_emsmarker(smap,lat,long,event_id):
+    folium.RegularPolygonMarker([lat, long], popup="EMS #: " + str(event_id),
+                                fill_color='red',number_of_sides=5,radius=10).add_to(smap)
+
+
+def create_map():  
+    #geopandas
+    geodata = geopandas.read_file('./map/templates/sf_zcta/sf_zcta.shp')
+      
+    #call in Current_predictions table values  
+    t = pd.DataFrame(list(Current_predictions.objects.all().values()))
+
+
+    geodata['ZCTA5CE10'] = geodata['ZCTA5CE10'].astype('int64')
+    t['zcta'] = t['zcta'].astype('int64')
+    gdf = geodata.merge(t,left_on='ZCTA5CE10' ,right_on='zcta')
+    gdf1 = gdf
+    gdf = gdf.set_index('ZCTA5CE10')['call_counts']
+    gdf1 = gdf1.set_index('ZCTA5CE10')
+    gdf1.crs={'init': 'epsg:4326'}
+    
+    #color scale
+    colormap = linear.OrRd.scale(gdf1.call_counts.min(),gdf1.call_counts.max())
+    
+    #foliium
+    sfmap = folium.Map([37.7556, -122.4399], zoom_start = 12)
+    
+    #plot zip codes and prob color grid
+    folium.GeoJson(gdf1.to_json(),overlay=True,
+        style_function=lambda feature: 
+               {'color': "black",
+               'weight':1.5,
+               'fillColor': colormap(gdf[int(feature['id'])])}
+              ).add_to(sfmap)
+    folium.LayerControl().add_to(sfmap)
+    
+    #read in ambulance data, add markers
+    
+    ambulance = pd.DataFrame(list(Current_ambulance.objects.all().values()))
+    
+    for i in ambulance.values:
+        if i[1] != 0:
+            if i[0] == 1:
+                self.add_ambmarker(sfmap,i[1], i[2],i[3])
+
+            else:
+                self.used_ambmarker(sfmap,i[1], i[2],i[3])
+
+    #input ems event markers
+
+    current_call = Current_emscall.objects.all().values_list() 
+    for call in current_call:
+        self.add_emsmarker(sfmap,call[2],call[3],call[0])
+
+
+
+    sfmap.save('./map/templates/map_test.html')
+    return sfmap
+
+
+
+
+
+def dispatch_ambulance(ambfile,current_call,api_key):
+    ambulance = pd.read_csv(ambfile)
+    available_amb = ambulance.loc[ambulance.AVAILABLE == 1]
+    amb_coord = [(row[2], row[3]) for row in available_amb.itertuples()]
+    call_coord = [(current_call[1], current_call[2])]
+    dep_time = current_call[3]
+    result = api_call(amb_coord,call_coord,dep_time,api_key,available_amb)
+    
+    print("DISPATCHED AMBULANCE #:",result)
+    #update ambulance pd and save to file
+    ambulance.AVAILABLE[ambulance.AMB_ID==result] = 0
+    ambulance.to_csv(ambfile,index=False)
+
+
+
+def api_call(amb_coord,call_coord,dep_time,key,available_amb):
+    gmaps = googlemaps.Client(key=key)
+    result = gmaps.distance_matrix(amb_coord, call_coord, mode="driving", units="imperial", departure_time=dep_time)
+    output_mat = pd.DataFrame()
+    for idx, row in enumerate(result['rows']):
+        row_mat = pd.DataFrame()
+        mat = row['elements'][0]
+        for key, val in mat.items():
+            if key != 'status':
+                df = pd.DataFrame.from_dict(val, orient='index')
+                df = df.transpose()
+                df.columns = [key + "_" + c for c in df.columns]
+                if row_mat.empty:
+                    row_mat = df
+                else:
+                    row_mat = pd.concat([row_mat, df], axis=1)
+        if output_mat.empty:
+            output_mat = row_mat
+        else:
+            output_mat = output_mat.append(row_mat)
+    output_mat.index = [amb for amb in available_amb.AMB_ID]
+    
+    chosen = output_mat.loc[output_mat.duration_in_traffic_value == min(output_mat.duration_in_traffic_value)].index[0]
+    return chosen
+
 
 

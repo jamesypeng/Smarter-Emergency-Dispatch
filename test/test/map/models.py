@@ -1,5 +1,15 @@
 from django.db import models
 
+#priya added these imports on 11/19
+import pandas as pd
+import geopandas
+import numpy as np
+from geopandas.tools import sjoin
+import folium
+import googlemaps
+from folium.plugins import MarkerCluster
+from branca.colormap import linear
+import datetime
 # Create your models here.
 
 class Predictions(models.Model):
@@ -99,3 +109,74 @@ class Current_emscall(models.Model):
 
         p = Current_emscall(addr=address,LAT=coor[0][0],LONG=coor[0][1])
         p.save()
+
+
+    #functions to add markers to map
+    def add_ambmarker(smap,lat,long,amb_name):
+        folium.Marker([lat, long], icon=folium.Icon(icon='plus',color='blue'),
+                      popup="Amb #:" + str(amb_name)
+                     ).add_to(smap)
+        
+    def used_ambmarker(smap,lat,long,amb_name):
+        folium.Marker([lat, long], icon=folium.Icon(icon='plus',color='gray'),
+                      popup="Amb #:" + str(amb_name)
+                     ).add_to(smap)
+        
+    def add_emsmarker(smap,lat,long,event_id):
+        folium.RegularPolygonMarker([lat, long], popup="EMS #: " + str(event_id),
+                                    fill_color='red',number_of_sides=5,radius=10).add_to(smap)
+
+    def create_map():  
+        #geopandas
+        geodata = geopandas.read_file('./map/templates/sf_zcta/sf_zcta.shp')
+          
+        #call in Current_predictions table values  
+        t = pd.DataFrame(list(Current_predictions.objects.all().values()))
+
+
+        geodata['ZCTA5CE10'] = geodata['ZCTA5CE10'].astype('int64')
+        t['zcta'] = t['zcta'].astype('int64')
+        gdf = geodata.merge(t,left_on='ZCTA5CE10' ,right_on='zcta')
+        gdf1 = gdf
+        gdf = gdf.set_index('ZCTA5CE10')['call_counts']
+        gdf1 = gdf1.set_index('ZCTA5CE10')
+        gdf1.crs={'init': 'epsg:4326'}
+        
+        #color scale
+        colormap = linear.OrRd.scale(gdf1.call_counts.min(),gdf1.call_counts.max())
+        
+        #foliium
+        sfmap = folium.Map([37.7556, -122.4399], zoom_start = 12)
+        
+        #plot zip codes and prob color grid
+        folium.GeoJson(gdf1.to_json(),overlay=True,
+            style_function=lambda feature: 
+                   {'color': "black",
+                   'weight':1.5,
+                   'fillColor': colormap(gdf[int(feature['id'])])}
+                  ).add_to(sfmap)
+        folium.LayerControl().add_to(sfmap)
+        
+        #read in ambulance data, add markers
+        
+        ambulance = pd.DataFrame(list(Current_ambulance.objects.all().values()))
+        
+        for i in ambulance.values:
+            if i[1] != 0:
+                if i[0] == 1:
+                    self.add_ambmarker(sfmap,i[1], i[2],i[3])
+
+                else:
+                    self.used_ambmarker(sfmap,i[1], i[2],i[3])
+
+        #input ems event markers
+
+        current_call = Current_emscall.objects.all().values_list() 
+        for call in current_call:
+            self.add_emsmarker(sfmap,call[2],call[3],call[0])
+
+
+        sfmap.save('./map/templates/map_test.html')
+        return sfmap
+
+
