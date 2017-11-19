@@ -59,13 +59,13 @@ class Current_ambulance(models.Model):
     LONG = models.FloatField()
     AVAILABLE = models.IntegerField()
 
-    def store_amb_record():
+    def store_amb_record(self,):
         curr_amb = Current_ambulance.objects.all().values_list()
         for amb in curr_amb:
             t = Ambulance(amb_id=amb[0],LAT=amb[1],LONG=amb[2],AVAILABLE=amb[3])
             t.save()
 
-    def update_amb_records(id_,lat_,long_,avail_):
+    def update_amb_records(self,id_,lat_,long_,avail_):
         t = Current_ambulance.objects.get(amb_id=id_)
         t.LAT = lat_
         t.LONG = long_
@@ -73,7 +73,7 @@ class Current_ambulance(models.Model):
         t.save()
 
 
-    def api_call(amb_coord,call_coord,dep_time,key,available_amb):
+    def api_call(self,amb_coord,call_coord,dep_time,key,available_amb):
         gmaps = googlemaps.Client(key=key)
         result = gmaps.distance_matrix(amb_coord, call_coord, mode="driving", units="imperial", departure_time=dep_time)
         output_mat = pd.DataFrame()
@@ -98,7 +98,7 @@ class Current_ambulance(models.Model):
         chosen = output_mat.loc[output_mat.duration_in_traffic_value == min(output_mat.duration_in_traffic_value)].index[0]
         return chosen
 
-    def dispatch_ambulance(api_key):
+    def dispatch_ambulance(self,api_key):
         ambulance = pd.DataFrame(list(Current_ambulance.objects.all().values()))
         available_amb = ambulance.loc[ambulance.AVAILABLE == 1]
         amb_coord = [(row[2], row[3]) for row in available_amb.itertuples()]
@@ -126,7 +126,7 @@ class Current_emscall(models.Model):
         return self.addr
 
 
-    def get_coordinates(key, addr):
+    def get_coordinates(self,key, addr):
         """Runs google maps geocoding api to return lat/long coords
         for a list of addresses.
         key: string (API key)
@@ -140,7 +140,7 @@ class Current_emscall(models.Model):
             coords.append((lat_long['lat'], lat_long['lng']))
         return coords
 
-    def update_current_ems(address):
+    def update_current_ems(self,address):
         curr_ems= Current_emscall.objects.all().values_list()
         for i in curr_ems:
             t = EMS_Calls(ems_id= i[0],addr=i[1],LAT=i[2],LONG=i[3],time=i[4])
@@ -155,21 +155,21 @@ class Current_emscall(models.Model):
 
 
     #functions to add markers to map
-    def add_ambmarker(smap,lat,long,amb_name):
+    def add_ambmarker(self,smap,lat,long,amb_name):
         folium.Marker([lat, long], icon=folium.Icon(icon='plus',color='blue'),
                       popup="Amb #:" + str(amb_name)
                      ).add_to(smap)
         
-    def used_ambmarker(smap,lat,long,amb_name):
+    def used_ambmarker(self,smap,lat,long,amb_name):
         folium.Marker([lat, long], icon=folium.Icon(icon='plus',color='gray'),
                       popup="Amb #:" + str(amb_name)
                      ).add_to(smap)
         
-    def add_emsmarker(smap,lat,long,event_id):
+    def add_emsmarker(self,smap,lat,long,event_id):
         folium.RegularPolygonMarker([lat, long], popup="EMS #: " + str(event_id),
                                     fill_color='red',number_of_sides=5,radius=10).add_to(smap)
 
-    def create_map():  
+    def create_map(self):  
         #geopandas
         geodata = geopandas.read_file('./map/templates/sf_zcta/sf_zcta.shp')
           
@@ -218,8 +218,7 @@ class Current_emscall(models.Model):
         for call in current_call:
             self.add_emsmarker(sfmap,call[2],call[3],call[0])
 
+        sfmap.save('./map/templates/map.html')
 
-        sfmap.save('./map/templates/map_test.html')
-        return sfmap
 
 
