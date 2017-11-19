@@ -14,5 +14,6 @@ from django.conf.urls import include, url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.current_state, name='current_state'),
+    # url(r'^$', views.current_state, name='current_state'),
+    url(r'^$', views.current_map, name='current_map'),
 ]
