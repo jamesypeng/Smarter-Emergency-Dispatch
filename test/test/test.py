@@ -141,18 +141,23 @@ def create_map():
 
 
 
-def dispatch_ambulance(ambfile,current_call,api_key):
-    ambulance = pd.read_csv(ambfile)
+def dispatch_ambulance(api_key):
+    ambulance = pd.DataFrame(list(Current_ambulance.objects.all().values()))
     available_amb = ambulance.loc[ambulance.AVAILABLE == 1]
     amb_coord = [(row[2], row[3]) for row in available_amb.itertuples()]
-    call_coord = [(current_call[1], current_call[2])]
-    dep_time = current_call[3]
+
+    #get current call
+    current_call = Current_emscall.objects.all().values_list()[0]
+    call_coord = [(current_call[2], current_call[3])]
+    dep_time = current_call[4]
     result = api_call(amb_coord,call_coord,dep_time,api_key,available_amb)
     
-    print("DISPATCHED AMBULANCE #:",result)
-    #update ambulance pd and save to file
-    ambulance.AVAILABLE[ambulance.AMB_ID==result] = 0
-    ambulance.to_csv(ambfile,index=False)
+    #update ambulance to table
+    result = int(result)
+    LAT = ambulance.LAT[ambulance.amb_id==result].tolist()[0]
+    LONG = ambulance.LONG[ambulance.amb_id==result].tolist()[0]
+
+    self.update_amb_records(result,LAT,LONG,0)
 
 
 
@@ -182,4 +187,13 @@ def api_call(amb_coord,call_coord,dep_time,key,available_amb):
     return chosen
 
 
+
+def update_amb_locs(ambfile,predsfile):
+    new_amb_locations = model_2_funcs.update_ambulance_assignments(amb_status_file_path=ambfile,
+                                                               shape_file_path='./map/templates/sf_zcta/sf_zcta.shp',
+                                                               predictions_file_path=predsfile,
+                                                               results_file_path=None,
+                                                               shape_region_id_col = 'ZCTA5CE10')
+
+    new_amb_locations.to_csv(ambfile)
 

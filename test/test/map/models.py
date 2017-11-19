@@ -24,7 +24,6 @@ class Predictions(models.Model):
     is_weekend = models.BooleanField()
     call_counts = models.FloatField()
 
-
 class Ambulance(models.Model):
     amb_id = models.IntegerField()
     LAT = models.FloatField()
@@ -72,6 +71,50 @@ class Current_ambulance(models.Model):
         t.LONG = long_
         t.AVAILABLE = avail_
         t.save()
+
+
+    def api_call(amb_coord,call_coord,dep_time,key,available_amb):
+        gmaps = googlemaps.Client(key=key)
+        result = gmaps.distance_matrix(amb_coord, call_coord, mode="driving", units="imperial", departure_time=dep_time)
+        output_mat = pd.DataFrame()
+        for idx, row in enumerate(result['rows']):
+            row_mat = pd.DataFrame()
+            mat = row['elements'][0]
+            for key, val in mat.items():
+                if key != 'status':
+                    df = pd.DataFrame.from_dict(val, orient='index')
+                    df = df.transpose()
+                    df.columns = [key + "_" + c for c in df.columns]
+                    if row_mat.empty:
+                        row_mat = df
+                    else:
+                        row_mat = pd.concat([row_mat, df], axis=1)
+            if output_mat.empty:
+                output_mat = row_mat
+            else:
+                output_mat = output_mat.append(row_mat)
+        output_mat.index = [amb for amb in available_amb.AMB_ID]
+        
+        chosen = output_mat.loc[output_mat.duration_in_traffic_value == min(output_mat.duration_in_traffic_value)].index[0]
+        return chosen
+
+    def dispatch_ambulance(api_key):
+        ambulance = pd.DataFrame(list(Current_ambulance.objects.all().values()))
+        available_amb = ambulance.loc[ambulance.AVAILABLE == 1]
+        amb_coord = [(row[2], row[3]) for row in available_amb.itertuples()]
+
+        #get current call
+        current_call = Current_emscall.objects.all().values_list()[0]
+        call_coord = [(current_call[2], current_call[3])]
+        dep_time = current_call[4]
+        result = self.api_call(amb_coord,call_coord,dep_time,api_key,available_amb)
+        
+        #update ambulance to table
+        result = int(result)
+        LAT = ambulance.LAT[ambulance.amb_id==result].tolist()[0]
+        LONG = ambulance.LONG[ambulance.amb_id==result].tolist()[0]
+
+        self.update_amb_records(result,LAT,LONG,0)
 
 class Current_emscall(models.Model):
     addr = models.CharField(max_length=200)
