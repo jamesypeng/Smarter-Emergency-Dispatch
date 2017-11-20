@@ -38,7 +38,13 @@ def current_map(request):
 		if form.is_valid():
 			post = form.save(commit=False)
         	# call update current ems function
-			Current_emscall.update_current_ems(Current_emscall, post.addr)
+
+			#Current_emscall.update_current_ems(Current_emscall, post.addr)
+
+			#priya's changed
+			l = Current_emscall()
+			l.update_current_ems(post.addr)
+			l.create_map()
 
 			# post.LAT = 130.0
 			# post.LONG = 35.0

@@ -134,14 +134,16 @@ class Current_emscall(models.Model):
         for a list of addresses.
         key: string (API key)
         addr: list of strings (addresses)"""
+
         key = getattr(settings, "GGL_API_KEY", '')
         gmaps = googlemaps.Client(key=key)
         coords = []
-        for ad in addr:
-            geocode_result = gmaps.geocode(ad)
-            lat_long = geocode_result[0]['geometry']['location']
+        #for ad in addr:
+         
+        geocode_result = gmaps.geocode(addr)
+        lat_long = geocode_result[0]['geometry']['location']
             # Add tuple with lat & long to coords output
-            coords.append((lat_long['lat'], lat_long['lng']))
+        coords.append((lat_long['lat'], lat_long['lng']))
         return coords
 
     def update_current_ems(self,address):
