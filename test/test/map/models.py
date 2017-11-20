@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+
 #priya added these imports on 11/19
 import pandas as pd
 import geopandas
@@ -11,6 +12,8 @@ import googlemaps
 from folium.plugins import MarkerCluster
 from branca.colormap import linear
 import datetime
+
+import model_2_funcs
 # Create your models here.
 
 class Predictions(models.Model):
@@ -60,13 +63,15 @@ class Current_ambulance(models.Model):
     LONG = models.FloatField()
     AVAILABLE = models.IntegerField()
 
-    def store_amb_record(self,):
+    def store_amb_record(self):
         curr_amb = Current_ambulance.objects.all().values_list()
         for amb in curr_amb:
             t = Ambulance(amb_id=amb[0],LAT=amb[1],LONG=amb[2],AVAILABLE=amb[3])
             t.save()
 
     def update_amb_records(self,id_,lat_,long_,avail_):
+        self.store_amb_record()
+        
         t = Current_ambulance.objects.get(amb_id=id_)
         t.LAT = lat_
         t.LONG = long_
