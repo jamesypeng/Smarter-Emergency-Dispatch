@@ -156,7 +156,7 @@ class Current_emscall(models.Model):
         # coor = self.get_coordinates(key_code,address)
 
         # melanie adjustment
-        coor = self.get_coordinates(self.addr)
+        coor = self.get_coordinates(address)
 
         p = Current_emscall(addr=address,LAT=coor[0][0],LONG=coor[0][1])
         p.save()
