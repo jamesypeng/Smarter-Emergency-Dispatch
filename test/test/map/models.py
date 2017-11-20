@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 #priya added these imports on 11/19
 import pandas as pd
@@ -125,12 +126,15 @@ class Current_emscall(models.Model):
     def __str__(self):
         return self.addr
 
+# MELANIE CHANGES START HERE
 
-    def get_coordinates(self,key, addr):
+    # MELANIE removed key as an argument & adjusted code to pull from environ variable
+    def get_coordinates(self,addr):
         """Runs google maps geocoding api to return lat/long coords
         for a list of addresses.
         key: string (API key)
         addr: list of strings (addresses)"""
+        key = getattr(settings, "GGL_API_KEY", '')
         gmaps = googlemaps.Client(key=key)
         coords = []
         for ad in addr:
@@ -148,11 +152,16 @@ class Current_emscall(models.Model):
 
         Current_emscall.objects.all().delete()
 
-        coor = self.get_coordinates(key_code,address)
+        # priya version
+        # coor = self.get_coordinates(key_code,address)
+
+        # melanie adjustment
+        coor = self.get_coordinates(self.addr)
 
         p = Current_emscall(addr=address,LAT=coor[0][0],LONG=coor[0][1])
         p.save()
 
+# END MELANIE CHANGES
 
     #functions to add markers to map
     def add_ambmarker(self,smap,lat,long,amb_name):

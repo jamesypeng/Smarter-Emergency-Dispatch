@@ -126,3 +126,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
+GGL_API_KEY = os.environ['GGL_API_KEY']
