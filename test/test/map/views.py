@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.utils import timezone
-from .models import Current_emscall
+from .models import *
 from .forms import CurrentCallForm
 
 # Create your views here.
@@ -44,6 +44,7 @@ def current_map(request):
 			#priya's changed
 			l = Current_emscall()
 			l.update_current_ems(post.addr)
+
 			l.create_map()
 
 			# post.LAT = 130.0

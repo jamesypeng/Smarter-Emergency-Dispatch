@@ -83,11 +83,18 @@ class Current_ambulance(models.Model):
     LONG = models.FloatField()
     AVAILABLE = models.IntegerField()
 
+    #store all records
     def store_amb_record(self):
         curr_amb = Current_ambulance.objects.all().values_list()
         for amb in curr_amb:
             t = Ambulance(amb_id=amb[0],LAT=amb[1],LONG=amb[2],AVAILABLE=amb[3])
             t.save()
+
+    #store single record at a time
+    def store_single_amb_record(self,id):
+        record = Current_ambulance.objects.get(amb_id=id)
+        t = Ambulance(amb_id=record.amb_id,LAT=record.LAT,LONG=record.LONG,AVAILABLE=record.AVAILABLE)
+        t.save()
 
     def update_amb_records(self,id_,lat_,long_,avail_):
         #self.store_amb_record()
@@ -98,18 +105,19 @@ class Current_ambulance(models.Model):
         t.AVAILABLE = avail_
         t.save()
 
-def update_amb_locs(self):
-    ambfile = pd.DataFrame(list(Current_ambulance.objects.all().values()))
-    predsfile = pd.DataFrame(list(Current_predictions.objects.all().values()))
+    def update_amb_locs(self):
+        ambfile = pd.DataFrame(list(Current_ambulance.objects.all().values()))
+        predsfile = pd.DataFrame(list(Current_predictions.objects.all().values()))
 
-    new_amb_locations = model_2_funcs.update_ambulance_assignments(amb_status_file_path=ambfile,
-                                                               shape_file_path='./map/templates/sf_zcta/sf_zcta.shp',
-                                                               predictions_file_path=predsfile,
-                                                               results_file_path=None,
-                                                               shape_region_id_col = 'ZCTA5CE10')
-    self.store_amb_record()
-    for ind, row in new_amb_locations:
-        self.update_amb_records(ind,row[1],row[2],row[0])    
+        new_amb_locations = model_2_funcs.update_ambulance_assignments(amb_status_file_path=ambfile,
+                                                                   shape_file_path='./map/templates/sf_zcta/sf_zcta.shp',
+                                                                   predictions_file_path=predsfile,
+                                                                   results_file_path=None,
+                                                                   shape_region_id_col = 'ZCTA5CE10')
+        
+        for ind, row in new_amb_locations.iterrows():
+            self.store_single_amb_record(ind)
+            self.update_amb_records(ind,row[1],row[2],row[0])    
 
 
     def api_call(self,amb_coord,call_coord,dep_time,key,available_amb):
@@ -132,12 +140,13 @@ def update_amb_locs(self):
                 output_mat = row_mat
             else:
                 output_mat = output_mat.append(row_mat)
-        output_mat.index = [amb for amb in available_amb.AMB_ID]
+        output_mat.index = [amb for amb in available_amb.amb_id]
         
         chosen = output_mat.loc[output_mat.duration_in_traffic_value == min(output_mat.duration_in_traffic_value)].index[0]
         return chosen
 
-    def dispatch_ambulance(self,api_key):
+    def dispatch_ambulance(self):
+        api_key = getattr(settings, "GGL_API_KEY", '')
         ambulance = pd.DataFrame(list(Current_ambulance.objects.all().values()))
         available_amb = ambulance.loc[ambulance.AVAILABLE == 1]
         amb_coord = [(row[2], row[3]) for row in available_amb.itertuples()]
@@ -153,6 +162,7 @@ def update_amb_locs(self):
         LAT = ambulance.LAT[ambulance.amb_id==result].tolist()[0]
         LONG = ambulance.LONG[ambulance.amb_id==result].tolist()[0]
 
+        self.store_single_amb_record(result)
         self.update_amb_records(result,LAT,LONG,0)
 
 class Current_emscall(models.Model):
