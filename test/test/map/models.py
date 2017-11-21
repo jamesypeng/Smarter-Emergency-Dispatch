@@ -70,13 +70,26 @@ class Current_ambulance(models.Model):
             t.save()
 
     def update_amb_records(self,id_,lat_,long_,avail_):
-        self.store_amb_record()
-        
+        #self.store_amb_record()
+        #need to store before updating a single record
         t = Current_ambulance.objects.get(amb_id=id_)
         t.LAT = lat_
         t.LONG = long_
         t.AVAILABLE = avail_
         t.save()
+
+def update_amb_locs(self):
+    ambfile = pd.DataFrame(list(Current_ambulance.objects.all().values()))
+    predsfile = pd.DataFrame(list(Current_predictions.objects.all().values()))
+
+    new_amb_locations = model_2_funcs.update_ambulance_assignments(amb_status_file_path=ambfile,
+                                                               shape_file_path='./map/templates/sf_zcta/sf_zcta.shp',
+                                                               predictions_file_path=predsfile,
+                                                               results_file_path=None,
+                                                               shape_region_id_col = 'ZCTA5CE10')
+    self.store_amb_record()
+    for ind, row in new_amb_locations:
+        self.update_amb_records(ind,row[1],row[2],row[0])    
 
 
     def api_call(self,amb_coord,call_coord,dep_time,key,available_amb):

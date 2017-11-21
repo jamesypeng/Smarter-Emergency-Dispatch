@@ -211,7 +211,7 @@ def update_ambulance_assignments(amb_status_file_path, shape_file_path, predicti
     dist_arr = np.zeros(shape=(amb_count,amb_count)) # pairwise distance from each active unit to each new location
     for amb_index in range(amb_count):
         for target_index in range(amb_count):
-            dist_arr[amb_index, target_index] = active_locations[amb_index].distance(new_locations[target_index])
+            dist_arr[amb_index, target_index] = active_locations.tolist()[amb_index].distance(new_locations[target_index])
 
     # determining new ambulance assignments
     # currently, this just takes the closest pair of ambulance and new location, assigns the amb to that location,

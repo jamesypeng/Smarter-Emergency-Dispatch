@@ -188,12 +188,19 @@ def api_call(amb_coord,call_coord,dep_time,key,available_amb):
 
 
 
-def update_amb_locs(ambfile,predsfile):
+def update_amb_locs(self):
+    ambfile = pd.DataFrame(list(Current_ambulance.objects.all().values()))
+    predsfile = pd.DataFrame(list(Current_predictions.objects.all().values()))
+
     new_amb_locations = model_2_funcs.update_ambulance_assignments(amb_status_file_path=ambfile,
                                                                shape_file_path='./map/templates/sf_zcta/sf_zcta.shp',
                                                                predictions_file_path=predsfile,
                                                                results_file_path=None,
                                                                shape_region_id_col = 'ZCTA5CE10')
 
-    new_amb_locations.to_csv(ambfile)
+
+    for ind, row in new_amb_locations:
+        self.update_amb_records(ind,row[1],row[2],row[0])
+
+
 
