@@ -25,7 +25,7 @@ def current_map(request):
 			l.update_current_ems(post.addr)
 
 			l.create_map()
-			l.overwrite_map('./map/templates/map.html', './map/templates/map_test.html')
+			l.overwrite_map('./map/templates/map/map.html', './map/templates/map/map_test.html')
 
 			# post.LAT = 130.0
 			# post.LONG = 35.0

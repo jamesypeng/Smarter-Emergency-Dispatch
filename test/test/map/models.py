@@ -281,7 +281,7 @@ class Current_emscall(models.Model):
         for call in current_call:
             self.add_emsmarker(sfmap,call[2],call[3],call[0])
 
-        sfmap.save('./map/templates/map.html')
+        sfmap.save('./map/templates/map/map.html')
 
 
     # Melanie added on 11/22
@@ -292,12 +292,16 @@ class Current_emscall(models.Model):
         rendered_file: map.html
         target_file: map_test.html"""
         with open(rendered_file) as fp:
-            soup = BeautifulSoup(fp, "lxml")
-        scrpt = soup.find_all("script")[-1].get_text()
-        start_tag = "{% extends 'map/current_state.html' %}{% block map %}<script>"
-        end_tag = "</script>{% endblock %}"
-        doc = ''.join([start_tag, scrpt, end_tag])
+            soup = BeautifulSoup(fp, "html.parser")
+        scrpt = soup.find_all("script")[-1]
+        div = soup.find_all("div", {"class":"folium-map"})[-1]
+        start_tag = "{% extends 'map/current_state.html' %}{% block map %}"
+        end_tag = "{% endblock %}"
         with open(target_file, "w") as file:
-            file.write(doc)
+            str_scrpt = str(scrpt)
+            str_div = str(div)
+            for elem in [start_tag, str_div, str_scrpt, end_tag]:
+                file.write(elem)
+                file.write("\n")
 
 
