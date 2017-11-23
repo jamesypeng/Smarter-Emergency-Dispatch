@@ -12,25 +12,6 @@ from .forms import CurrentCallForm
 
 
 
-# WORKS WITH 'current_state' URL PATTERN
-# def current_state(request):
-#     if request.method == "POST":
-#         form = CurrentCallForm(request.POST)
-#         if form.is_valid():
-
-#         	# call update current ems function
-
-#             post = form.save(commit=False)
-#             post.LAT = 130.0
-#             post.LONG = 35.0
-#             post.time = timezone.now()
-#             post.save()
-#             # return redirect('current_state', pk=post.pk)
-#     else:
-#         form = CurrentCallForm()
-#     return render(request, 'map/current_state.html', {'form': form})
-
-
 # WORKS WITH 'current_map' URL PATTERN
 def current_map(request):
 	if request.method == "POST":
@@ -39,13 +20,12 @@ def current_map(request):
 			post = form.save(commit=False)
         	# call update current ems function
 
-			#Current_emscall.update_current_ems(Current_emscall, post.addr)
-
 			#priya's changed
 			l = Current_emscall()
 			l.update_current_ems(post.addr)
 
 			l.create_map()
+			l.overwrite_map('./map/templates/map.html', './map/templates/map_test.html')
 
 			# post.LAT = 130.0
 			# post.LONG = 35.0

@@ -13,6 +13,10 @@ from folium.plugins import MarkerCluster
 from branca.colormap import linear
 import datetime
 
+# Added on 11/22
+from bs4 import BeautifulSoup
+# To install: $ pip install beautifulsoup4
+
 import model_2_funcs
 # Create your models here.
 
@@ -279,5 +283,21 @@ class Current_emscall(models.Model):
 
         sfmap.save('./map/templates/map.html')
 
+
+    # Melanie added on 11/22
+    def overwrite_map(self, rendered_file, target_file):
+        """Parses a file rendered by geopandas.
+        Outputs portion of html needed for rendering in django.
+        
+        rendered_file: map.html
+        target_file: map_test.html"""
+        with open(rendered_file) as fp:
+            soup = BeautifulSoup(fp, "lxml")
+        scrpt = soup.find_all("script")[-1].get_text()
+        start_tag = "{% extends 'map/current_state.html' %}{% block map %}<script>"
+        end_tag = "</script>{% endblock %}"
+        doc = ''.join([start_tag, scrpt, end_tag])
+        with open(target_file, "w") as file:
+            file.write(doc)
 
 
