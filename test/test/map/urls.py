@@ -16,4 +16,5 @@ from . import views
 urlpatterns = [
     # url(r'^$', views.current_state, name='current_state'),
     url(r'^$', views.current_map, name='current_map'),
+    url(r'^about$', views.about, name='about'),
 ]

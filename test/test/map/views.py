@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.utils import timezone
 from .models import *
-from .forms import CurrentCallForm
+from .forms import CurrentCallForm, CurrentAmbulanceForm
 
 # Create your views here.
 
@@ -15,7 +15,11 @@ from .forms import CurrentCallForm
 # WORKS WITH 'current_map' URL PATTERN
 def current_map(request):
 	if request.method == "POST":
-		form = CurrentCallForm(request.POST)
+		form = CurrentCallForm(request.POST, prefix='call')
+
+		# Melanie added on 11/24
+		form2 = CurrentAmbulanceForm(request.POST, prefix='amb')
+
 		if form.is_valid():
 			post = form.save(commit=False)
         	# call update current ems function
@@ -27,13 +31,20 @@ def current_map(request):
 			l.create_map()
 			l.overwrite_map('./map/templates/map/map.html', './map/templates/map/map_test.html')
 
-			# post.LAT = 130.0
-			# post.LONG = 35.0
-			# post.time = timezone.now()
-			# post.save()
-            # return redirect('current_state', pk=post.pk)
+		# Melanie added on 11/24
+		elif form2.is_valid():
+			post2 = form2.save(commit=False)
+			# post2.save()
+
+
 	else:
-		form = CurrentCallForm()
-	return render(request, 'map/map_test.html', {'form': form})
+		form = CurrentCallForm(prefix='call')
+		form2 = CurrentAmbulanceForm(prefix='amb')
 
 
+	return render(request, 'map/map_test.html', {'form': form, 'form2': form2 })
+	# return render(request, 'map/map_test.html', extra_context)
+
+
+def about(request):
+	return render(request, 'map/about.html')

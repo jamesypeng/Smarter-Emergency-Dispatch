@@ -87,6 +87,9 @@ class Current_ambulance(models.Model):
     LONG = models.FloatField()
     AVAILABLE = models.IntegerField()
 
+    def __str__(self):
+    	return "ID: ", self.amb_id
+
     #store all records
     def store_amb_record(self):
         curr_amb = Current_ambulance.objects.all().values_list()
