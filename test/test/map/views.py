@@ -28,6 +28,11 @@ def current_map(request):
 			l = Current_emscall()
 			l.update_current_ems(post.addr)
 
+			k = Current_ambulance()
+			k.dispatch_ambulance()
+
+			k.update_amb_locs()
+			
 			l.create_map()
 			l.overwrite_map('./map/templates/map/map.html', './map/templates/map/map_test.html')
 

@@ -203,6 +203,11 @@ def update_amb_locs(self):
         self.update_amb_records(ind,row[1],row[2],row[0])
 
 
+def update(id):
+   ...:     t = Current_ambulance.objects.get(amb_id=id)
+   ...:     t.AVAILABLE = 1      
+   ...:     t.save()
+
 
 
 
