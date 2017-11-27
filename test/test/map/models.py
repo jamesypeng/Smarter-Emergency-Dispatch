@@ -87,8 +87,8 @@ class Current_ambulance(models.Model):
     LONG = models.FloatField()
     AVAILABLE = models.IntegerField()
 
-    def __str__(self):
-    	return "ID: ", self.amb_id
+    # def __str__(self):
+    # 	return "ID: ", self.amb_id
 
     #store all records
     def store_amb_record(self):
@@ -98,8 +98,8 @@ class Current_ambulance(models.Model):
             t.save()
 
     #store single record at a time
-    def store_single_amb_record(self,id):
-        record = Current_ambulance.objects.get(amb_id=id)
+    def store_single_amb_record(self,id_):
+        record = Current_ambulance.objects.get(amb_id=id_)
         t = Ambulance(amb_id=record.amb_id,LAT=record.LAT,LONG=record.LONG,AVAILABLE=record.AVAILABLE)
         t.save()
 

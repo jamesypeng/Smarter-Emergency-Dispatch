@@ -5,14 +5,14 @@
     <h2>Current Call</h2>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="save btn btn-default">Submit</button>
+        <button type="submit" class="save btn btn-default" name="call_submit">Submit</button>
     </form>
 
     <!-- Melanie added on 11/24 -->
     <h2>Ambulance Back in Service</h2>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form2.as_p }}
-        <button type="submit" class="save btn btn-default">Submit</button>
+        <button type="submit" class="save btn btn-default" name="amb_submit">Submit</button>
     </form>
 
 

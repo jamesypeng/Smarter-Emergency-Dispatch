@@ -20,7 +20,9 @@ def current_map(request):
 		# Melanie added on 11/24
 		form2 = CurrentAmbulanceForm(request.POST, prefix='amb')
 
-		if form.is_valid():
+		# Melanie changed on 11/26
+		if form.is_valid() and 'call_submit' in request.POST:
+		# if "addr" in form.data.keys():
 			post = form.save(commit=False)
         	# call update current ems function
 
@@ -37,9 +39,19 @@ def current_map(request):
 			l.overwrite_map('./map/templates/map/map.html', './map/templates/map/map_test.html')
 
 		# Melanie added on 11/24
-		elif form2.is_valid():
-			post2 = form2.save(commit=False)
-			# post2.save()
+		elif form2.is_valid() and 'amb_submit' in request.POST:
+			# post2 = form2.save(commit=False)
+
+			# This is the ID input by the user
+			input_id = form2['amb_id'].value()
+
+			a = Current_ambulance()
+			a.store_single_amb_record(input_id)
+
+			# Argument for AVAILABLE becomes 1 since the ambulance is being put back in service 
+			a.update_amb_records(a.amb_id, a.LAT, a.LONG, 1)
+
+			a.update_amb_locs()
 
 
 	else:
