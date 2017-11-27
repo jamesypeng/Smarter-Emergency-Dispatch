@@ -49,9 +49,13 @@ def current_map(request):
 			a.store_single_amb_record(input_id)
 
 			# Argument for AVAILABLE becomes 1 since the ambulance is being put back in service 
-			a.update_amb_records(a.amb_id, a.LAT, a.LONG, 1)
+			a.update_amb_status_only(input_id,1)
 
 			a.update_amb_locs()
+
+			l = Current_emscall()
+			l.create_map()
+			l.overwrite_map('./map/templates/map/map.html', './map/templates/map/map_test.html')
 
 
 	else:

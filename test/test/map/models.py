@@ -112,6 +112,11 @@ class Current_ambulance(models.Model):
         t.AVAILABLE = avail_
         t.save()
 
+    def update_amb_status_only(self,id_,avail_):
+        t = Current_ambulance.objects.get(amb_id=id_)
+        t.AVAILABLE = avail_
+        t.save()
+
     def update_amb_locs(self):
         ambfile = pd.DataFrame(list(Current_ambulance.objects.all().values()))
         predsfile = pd.DataFrame(list(Current_predictions.objects.all().values()))
