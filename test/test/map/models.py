@@ -171,11 +171,16 @@ class Current_ambulance(models.Model):
         
         #update ambulance to table
         result = int(result)
-        LAT = ambulance.LAT[ambulance.amb_id==result].tolist()[0]
-        LONG = ambulance.LONG[ambulance.amb_id==result].tolist()[0]
+        #LAT = ambulance.LAT[ambulance.amb_id==result].tolist()[0]
+        #LONG = ambulance.LONG[ambulance.amb_id==result].tolist()[0]
+
+        #shift ambulance to Current EMS call 11/28 change
+
+        ems_event_lat = Current_emscall.objects.all().values_list()[0][2]
+        ems_event_long = Current_emscall.objects.all().values_list()[0][3]
 
         self.store_single_amb_record(result)
-        self.update_amb_records(result,LAT,LONG,0)
+        self.update_amb_records(result,ems_event_lat,ems_event_long,0)
 
 class Current_emscall(models.Model):
     addr = models.CharField(max_length=200)
