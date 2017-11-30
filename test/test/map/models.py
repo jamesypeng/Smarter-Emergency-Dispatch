@@ -266,6 +266,17 @@ class Current_emscall(models.Model):
         
         #foliium
         sfmap = folium.Map([37.7556, -122.4399], zoom_start = 12)
+
+        current_preds = Current_predictions.objects.all()[:1][0]
+        c_hour =  str(current_preds.hour_of_day)
+        c_day = str(current_preds.day_of_month)
+        c_month = str(current_preds.month)
+        c_year = str(current_preds.year)
+
+        day = c_month + "/" + c_day + "/" + c_year + " " + c_hour + ":00" + " PDT"
+
+        colormap.caption = '# of Predicted EMS Events, Updated at ' + day
+        sfmap.add_child(colormap)
         
         #plot zip codes and prob color grid
         folium.GeoJson(gdf1.to_json(),overlay=True,
