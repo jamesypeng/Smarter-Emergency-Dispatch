@@ -34,7 +34,7 @@ def current_map(request):
 			k.dispatch_ambulance()
 
 			k.update_amb_locs()
-			
+
 			l.create_map()
 			l.overwrite_map('./map/templates/map/map.html', './map/templates/map/map_test.html')
 
@@ -48,7 +48,7 @@ def current_map(request):
 			a = Current_ambulance()
 			a.store_single_amb_record(input_id)
 
-			# Argument for AVAILABLE becomes 1 since the ambulance is being put back in service 
+			# Argument for AVAILABLE becomes 1 since the ambulance is being put back in service
 			a.update_amb_status_only(input_id,1)
 
 			a.update_amb_locs()
@@ -63,7 +63,13 @@ def current_map(request):
 		form2 = CurrentAmbulanceForm(prefix='amb')
 
 
-	return render(request, 'map/map_test.html', {'form': form, 'form2': form2 })
+	# JASON: adding query to fill html table we are using as a feed to display
+	# recent events for the user.
+	## NOTE: initially testing with existing table. will need to replace this
+	## with table name/fields from the events tracking table once we make it.
+	recent_events_query = EMS_Calls.objects.all()[:5]
+
+	return render(request, 'map/map_test.html', {'form': form, 'form2': form2,'recent_events_query':recent_events_query })
 	# return render(request, 'map/map_test.html', extra_context)
 
 

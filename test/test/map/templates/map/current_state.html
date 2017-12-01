@@ -1,23 +1,49 @@
-
 {% extends 'map/base.html' %}
 
 {% block content %}
-    <h2>Current Call</h2>
+<!--JASON: These div styles split the page vertically-->
+<div style="float:right; width:35%;">
+    <h2>Input Call</h2>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="save btn btn-default" name="call_submit">Submit</button>
     </form>
 
     <!-- Melanie added on 11/24 -->
-    <h2>Ambulance Back in Service</h2>
+    <h2>Activate Ambulance</h2>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form2.as_p }}
         <button type="submit" class="save btn btn-default" name="amb_submit">Submit</button>
     </form>
 
+    <!--JASON: Creating an event table, then iteratively filling it with elements
+    from the recent_events_query from view.py-->
+    <h2>Recent Events</h2>
+    <table>
+        <tr>
+            <th>Time</th>
+            <th>  </th>
+            <th>Event</th>
+        </tr>
+        {% if recent_events_query %}
+          {% for item in recent_events_query %}
+          <tr>
+              <td>{{ item.time }}</td>
+              <td>  </td>
+              <td>Unit {{ item.ems_id }} dispatched to ({{ items.LAT }},{{ items.LONG }})</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          Cannot Populate Table: No events found in query.
+        {% endif %}
+
+    </table>
+</div>
+<div style="float:left; width:60%;">
+  <h2>Dispatch Display</h2>
 
     	{% block map %}
     	{% endblock %}
 
-    
+</div>
 {% endblock %}
