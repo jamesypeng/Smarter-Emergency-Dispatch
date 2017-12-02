@@ -39,6 +39,8 @@
                     top: 0.0%;
                     }*/
 
+                    /*JASON: changed map height from 100% because it looked
+                    too tall on the page.*/
                     .folium-map {
                     position : relative;
                     width : 100.0%;
@@ -47,7 +49,12 @@
                     top: 0.0%;
                     }
 
-                    .post-form {margin-bottom: 50px}
+                    .post-form {margin-bottom: 50px;}
+
+                    /*JASON: This adds padding to the columns of our table.
+                    The events table columns ran together and looked bad*/
+                    td{padding:10px;}
+
                 </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-dvf/0.3.0/leaflet-dvf.markers.min.js"></script>
@@ -71,7 +78,12 @@
             <h1><a href="/">SmartDispatch</a></h1>
         </div>
         <div class="content container-fluid">
+            <!--JASON: changed container to container-fluid. This allows
+            the horizontal scaling on desktop screens that we wanted.-->
             <div class="row">
+                <!--JASON: manually changed from 8 to 12 columns below.
+                This is the number of columns that bootstrap uses for our
+                container (out of 12, so now uses all)-->
                 <div class="col-md-12">
                 {% block content %}
                 {% endblock %}
