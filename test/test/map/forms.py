@@ -10,6 +10,7 @@ class CurrentCallForm(forms.ModelForm):
 		super(CurrentCallForm, self).__init__(*args, **kwargs)
         # there's a `fields` property now
 		self.fields['addr'].required = False
+		self.fields['addr'].label = "Address"
 
 	class Meta:
 		model = Current_emscall

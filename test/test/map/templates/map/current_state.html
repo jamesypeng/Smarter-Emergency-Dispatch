@@ -4,6 +4,7 @@
 <!--JASON: These div styles split the page vertically-->
 <div style="float:right; width:35%;">
     <h2>Input Call</h2>
+    <h5> Please enter the address in need of emergency medical services (EMS) below.</h5>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="save btn btn-default" name="call_submit">Submit</button>
@@ -11,6 +12,7 @@
 
     <!-- Melanie added on 11/24 -->
     <h2>Activate Ambulance</h2>
+    <h5> Reactivate an ambulance by selecting an inactive ambulance from the drop down below.</h5>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form2.as_p }}
         <button type="submit" class="save btn btn-default" name="amb_submit">Submit</button>
@@ -19,6 +21,7 @@
     <!--JASON: Creating an event table, then iteratively filling it with elements
     from the recent_events_query from view.py-->
     <h2>Recent Events</h2>
+    <h5> See the live feed of incoming EMS events and ambulance dispatching below. </h5>
     <table>
         <tr>
             <th>Time</th>
@@ -28,7 +31,7 @@
         {% if recent_events_query %}
           {% for item in recent_events_query %}
           <tr>
-              <td>{{ item.time }}</td>
+              <td>{{ item.time|date:'m/d/y H:i'}} PDT</td>
               <td>  </td>
               <!-- <td>Unit {{ item.ems_id }} dispatched to ({{ items.LAT }},{{ items.LONG }})</td> -->
 			  <td> {{ item.event_desc }} </td>
