@@ -30,7 +30,9 @@
           <tr>
               <td>{{ item.time }}</td>
               <td>  </td>
-              <td>Unit {{ item.ems_id }} dispatched to ({{ items.LAT }},{{ items.LONG }})</td>
+              <!-- <td>Unit {{ item.ems_id }} dispatched to ({{ items.LAT }},{{ items.LONG }})</td> -->
+			  <td> {{ item.event_desc }} </td>
+			  
           </tr>
           {% endfor %}
         {% else %}

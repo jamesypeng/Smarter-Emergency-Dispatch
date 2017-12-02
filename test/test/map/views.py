@@ -67,11 +67,10 @@ def current_map(request):
 	# recent events for the user.
 	## NOTE: initially testing with existing table. will need to replace this
 	## with table name/fields from the events tracking table once we make it.
-	recent_events_query = EMS_Calls.objects.all()[:5]
+	recent_events_query = Event_feed.objects.order_by("-time")[:5]
 
-	return render(request, 'map/map_test.html', {'form': form, 'form2': form2,'recent_events_query':recent_events_query })
+	return render(request, 'map/map_test.html', {'form': form, 'form2': form2,'recent_events_query':recent_events_query})
 	# return render(request, 'map/map_test.html', extra_context)
-
 
 def about(request):
 	return render(request, 'map/about.html')

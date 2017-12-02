@@ -20,6 +20,15 @@ from bs4 import BeautifulSoup
 import model_2_funcs
 # Create your models here.
 
+class Event_feed(models.Model):
+    event_type = models.CharField(max_length=10)
+    event_desc = models.CharField(max_length=80)
+    unit = models.IntegerField(null=True)
+    LAT = models.FloatField(null=True)
+    LONG = models.FloatField(null=True)
+    time = models.DateTimeField(auto_now_add=True)
+
+
 class Predictions(models.Model):
     zcta = models.CharField(max_length=5)
     year = models.IntegerField()
@@ -81,6 +90,10 @@ class Current_predictions(models.Model):
             is_weekend=line[9],call_counts=line[10])
         t2.save()
 
+        feed = Event_feed(event_type="Predictions",event_desc="Predictions updated")
+        feed.save()
+
+
 class Current_ambulance(models.Model):
     amb_id = models.IntegerField(primary_key=True)
     LAT = models.FloatField()
@@ -116,6 +129,10 @@ class Current_ambulance(models.Model):
         t = Current_ambulance.objects.get(amb_id=id_)
         t.AVAILABLE = avail_
         t.save()
+
+        description = "Amb # " + str(id_) + " status updated to active "
+        feed = Event_feed(event_type="Activate",event_desc=description,unit=id_)
+        feed.save()
 
     def update_amb_locs(self):
         ambfile = pd.DataFrame(list(Current_ambulance.objects.all().values()))
@@ -182,6 +199,11 @@ class Current_ambulance(models.Model):
         self.store_single_amb_record(result)
         self.update_amb_records(result,ems_event_lat,ems_event_long,0)
 
+        #priya added for feed
+        description = "Amb # " + str(result) + " dispatched to " + str(ems_event_lat) + " and " + str(ems_event_long)
+        feed = Event_feed(event_type="Dispatch",event_desc=description,unit=result,LAT=ems_event_lat,LONG = ems_event_long)
+        feed.save()
+
 class Current_emscall(models.Model):
     addr = models.CharField(max_length=200)
     LAT = models.FloatField()
@@ -218,6 +240,7 @@ class Current_emscall(models.Model):
             t.save()
 
         Current_emscall.objects.all().delete()
+        print("does this work")
 
         # priya version
         # coor = self.get_coordinates(key_code,address)
@@ -227,6 +250,12 @@ class Current_emscall(models.Model):
 
         p = Current_emscall(addr=address,LAT=coor[0][0],LONG=coor[0][1])
         p.save()
+
+        #priya added for feed
+        ems_id = Current_emscall.objects.all().values_list()[0][0]
+        description = "EMS # " + str(ems_id) + " incoming from " + str(coor[0][0]) + " and " + str(coor[0][1])
+        feed2 = Event_feed(event_type="Event",event_desc=description,unit =ems_id)
+        feed2.save()
 
 # END MELANIE CHANGES
 
