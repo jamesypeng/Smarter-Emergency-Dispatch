@@ -146,7 +146,11 @@ class Current_ambulance(models.Model):
         
         for ind, row in new_amb_locations.iterrows():
             self.store_single_amb_record(ind)
-            self.update_amb_records(ind,row[1],row[2],row[0])    
+            self.update_amb_records(ind,row[1],row[2],row[0])
+
+        description = "Active ambulance positions have been updated"
+        feed = Event_feed(event_type="Ambulance_positions",event_desc=description)
+        feed.save()    
 
 
     def api_call(self,amb_coord,call_coord,dep_time,key,available_amb):
