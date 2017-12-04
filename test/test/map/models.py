@@ -279,6 +279,12 @@ class Current_emscall(models.Model):
                                     fill_color='red',number_of_sides=5,radius=10).add_to(smap)
 
     def create_map(self):  
+        #check current_predictions table
+        preds_check = Current_predictions.objects.all()[:1][0].hour_of_day
+        if datetime.datetime.now().hour != preds_check:
+                preds = Current_predictions()
+                preds.get_current_preds()
+
         #geopandas
         geodata = geopandas.read_file('./map/templates/sf_zcta/sf_zcta.shp')
           
