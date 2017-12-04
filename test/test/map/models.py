@@ -85,8 +85,8 @@ class Current_predictions(models.Model):
 
        #fill up current predictions table
 
-        feed = Event_feed(event_type="Predictions",event_desc="Predictions updated")
-        feed.save()
+        #feed = Event_feed(event_type="Predictions",event_desc="Predictions updated")
+        #feed.save()
         for line in t:
             t2 = Current_predictions(zcta=line[1], year=line[2], month=line[3],day_of_month=line[4],
             hour_of_day=line[5], day_of_year=line[6],week_of_year=line[7],day_of_week=line[8],
