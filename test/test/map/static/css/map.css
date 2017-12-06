@@ -46,5 +46,6 @@ h1, h2, h3, h4 {
 }
 
 .legend {
-display: inline-block
+display: inline-flex;
+margin-bottom: 5px;
 }
