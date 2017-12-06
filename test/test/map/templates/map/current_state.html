@@ -13,6 +13,23 @@
     <!-- Melanie added on 11/24 -->
     <h2>Activate Ambulance</h2>
     <h5> Reactivate an ambulance by selecting an inactive ambulance from the drop down below.</h5>
+    
+    <!-- priya input legend-->
+    <div class="legend">
+    {% load static %}
+
+
+    <img src="{% static "blue.png" %}"" width="30" height="30" align="left"/> 
+    <h5>Active Ambulance</h5>
+    </div>
+
+    <div class="legend">
+    <img src="{% static "grey.png" %}"" width="30" height="30" align="left"/> 
+    <h5> Inactive Ambulance </h5>
+
+    </div>
+    <!-- priya end legend-->
+  
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form2.as_p }}
         <button type="submit" class="save btn btn-default" name="amb_submit">Submit</button>
