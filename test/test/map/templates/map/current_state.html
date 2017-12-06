@@ -31,10 +31,10 @@
           {% for item in recent_events_query %}
             <tr>
               <td>
-                <font size = "2">{{ item.time|date:'m/d/y H:i'}} PDT </font>
+                <font size = "1">{{ item.time|date:'m/d/y H:i'}} PDT </font>
               </td>
               <!-- <td>Unit {{ item.ems_id }} dispatched to ({{ items.LAT }},{{ items.LONG }})</td> -->
-			        <td><font size = "2">{{ item.event_desc }} </font></td>
+			        <td><font size = "1">{{ item.event_desc }} </font></td>
 
             </tr>
           {% endfor %}
