@@ -25,19 +25,18 @@
     <table >
         <tr>
             <th>Time</th>
-            <th>  </th>
             <th>Event</th>
         </tr>
         {% if recent_events_query %}
           {% for item in recent_events_query %}
-          <tr>
+            <tr>
               <td>
-                <font size="2"> {{ item.time|date:'m/d/y H:i'}} PDT </font>
+                <font size = "2">{{ item.time|date:'m/d/y H:i'}} PDT </font>
               </td>
               <!-- <td>Unit {{ item.ems_id }} dispatched to ({{ items.LAT }},{{ items.LONG }})</td> -->
-			  <td> <font size="2">{{ item.event_desc }} </font></td>
-			  
-          </tr>
+			        <td><font size = "2">{{ item.event_desc }} </font></td>
+
+            </tr>
           {% endfor %}
         {% else %}
           Cannot Populate Table: No events found in query.
