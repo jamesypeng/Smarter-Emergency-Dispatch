@@ -17,9 +17,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-	url(r'^django-sb-admin/', include('django_sb_admin.urls')),
+	url(r'', include('django_sb_admin.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'', include('map.urls')),
+    # url(r'', include('map.urls')),
+    url(r'rawmap/', include('map.urls')),
+
 ]
 
 
