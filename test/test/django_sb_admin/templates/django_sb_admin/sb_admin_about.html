@@ -1,4 +1,5 @@
-{% extends "django_sb_admin/base.html" %}{% load static %}{% block sb_admin_title %}About page{% endblock sb_admin_title %}
+{% extends "django_sb_admin/base.html" %}{% load static %}
+{% block sb_admin_title %}About page{% endblock sb_admin_title %}
 {% block sb_admin_subheading %}<small>Project Information</small>{% endblock sb_admin_subheading %}
 {% block sb_admin_breadcrumb %}<i class="fa fa-dashboard"></i>  <a href="index.html">Dashboard</a>{% endblock sb_admin_breadcrumb %}
 {% block sb_admin_breadcrumb_active %}<li class="active">
@@ -6,28 +7,28 @@
  </li>{% endblock sb_admin_breadcrumb_active %}
 {% block sb_admin_content %}
 
-    <h2>Our Mission</h2>
+    <h2><i class="fa fa-bars" aria-hidden="true"></i> Our Mission</h2>
     	<p>Fire and ambulance services across the country depend on technology to help save lives.  That technology is sorely outdated, has caused dangerous delays and even cost people their lives. SmartDispatch aides emergency care dispatchers in distributing ambulances according to emergency service (EMS) distributions to improve response times, reduce cost, and reduce human error.</p> 
 
 		<p>Smart Dispatch addresses three key obstacles dispatchers face.</p>
 
-	<h2>How many calls will happen and where?</h2>
+	<h2><i class="fa fa-volume-control-phone" aria-hidden="true"></i> How many calls will happen and where?</h2>
 		<p>Most dispatching systems in use today do not have any predictive components. However, many municipalities maintain records of emergency calls and response times that stretch back years. SmartDispatch leverages this historical data to predict the number of calls in a given area on an hourly basis, so dispatchers have a clearer understanding of what to expect.</p>
 
-	<h2>Who should respond to each call?</h2>
+	<h2><i class="fa fa-user-md" aria-hidden="true"></i> Who should respond to each call?</h2>
 		<p>Dispatchers often rely on institutional and geographic knowledge of their regions to assign emergency units to calls. This means critical choices in sometimes life-threatening situations are vulnerable to human error and bias. SmartDispatch automates these choices and accounts for existing traffic conditions. Response times are minimized, and dispatchers can focus on other critical tasks.</p>
 
-	<h2>Where should ambulances wait while not in service?</h2>
+	<h2><i class="fa fa-ambulance" aria-hidden="true"></i> Where should ambulances wait while not in service?</h2>
 		<p>Unlike brick and mortar firehouses, ambulances and emergency vehicles don’t have firmly designated stations at which to wait while not responding to a call. Currently there is no standardized process for selecting these post locations, nor is there an agreed upon system for updating these locations. SmartDispatch addresses these inconsistencies by assigning post locations that position ambulances nearest the areas with the highest concentration of predicted calls. Additionally, these post locations can be updated at any desired frequency.</p>
 
-	<h2>Benefits</h2>
+	<h2><i class="fa fa-money" aria-hidden="true"></i> Benefits</h2>
 		<p>By bringing predictive analytics and automation to emergency call centers, SmartDispatch equips dispatchers with the tools they need to get their jobs done efficiently and effectively and to deliver the best care possible to people in need.</p>
 
-	<h2>Contact Us</h2>
+	<h2><i class="fa fa-envelope" aria-hidden="true"></i> Contact Us</h2>
 		<p>Melanie Costello: melanie.costello@berkeley.edu<br>
 		Priya Gupta: priyagupta@berkeley.edu<br>
 		Jason Harville: jlharville@berkeley.edu<br>
-		James Peng: james.peng@berkeley.edu</p>
+		James Peng: james.y.peng@berkeley.edu</p>
 
     
 {% endblock sb_admin_content %}
