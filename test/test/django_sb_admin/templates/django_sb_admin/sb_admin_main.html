@@ -1,0 +1,30 @@
+{% extends "django_sb_admin/base.html" %}{% load static %}
+
+{% block sb_admin_title %}Main page{% endblock sb_admin_title %}
+
+{% block sb_admin_subheading %}<small>Subheading</small>{% endblock sb_admin_subheading %}
+{% block sb_admin_breadcrumb %}<i class="fa fa-dashboard"></i>  <a href="index.html">Dashboard</a>{% endblock sb_admin_breadcrumb %}
+{% block sb_admin_breadcrumb_active %}<li class="active">
+      <i class="fa fa-file""></i> Main page
+ </li>{% endblock sb_admin_breadcrumb_active %}
+{% block sb_admin_content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Bordered Table</h2>
+        <header class="masthead d-flex">
+            <div class="container text-center my-auto">
+                <h1 class="mb-1">Stylish Portfolio 1111</h1>
+                <h3 class="mb-5">
+                    <em>A Free Bootstrap Theme by Start Bootstrap</em>
+                </h3>
+                <a class="btn btn-primary btn-xl js-scroll-trigger" href="about">Find Out More</a>
+            </div>
+            <div class="overlay"></div>
+        </header>
+    </div>
+</div>
+<!-- /.row -->
+
+
+
+{% endblock sb_admin_content %}
