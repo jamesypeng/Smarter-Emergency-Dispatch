@@ -65,4 +65,9 @@ def map(request):
     """
     return render(request, "django_sb_admin/map.html",
                   {"nav_active":"map"})
-				  
+
+def main(request):
+    """Map page with a documentation.
+    """
+    return render(request, "django_sb_admin/sb_admin_main.html",
+                  {"nav_active":"main"})
