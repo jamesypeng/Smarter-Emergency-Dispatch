@@ -1,12 +1,12 @@
 {% extends "django_sb_admin/base.html" %}{% load static %}
 {% block sb_admin_title %}Map{% endblock sb_admin_title %}
 {% block sb_admin_subheading %}<small>Dispatch Display</small>{% endblock sb_admin_subheading %}
-{% block sb_admin_breadcrumb %}<i class="fa fa-dashboard"></i>  <a href="index.html">Dashboard</a>{% endblock sb_admin_breadcrumb %}
+{% block sb_admin_breadcrumb %}<i class="fa fa-dashboard"></i>  <a href="/">Dashboard</a>{% endblock sb_admin_breadcrumb %}
 {% block sb_admin_breadcrumb_active %}<li class="active">
     <i class="fa fa-map""></i> Map
 </li>{% endblock sb_admin_breadcrumb_active %}
 {% block sb_admin_content %}
 
-<iframe src="/rawmap/" width="100%" height = 700px frameborder="0" name="map_pages"></iframe>
+<iframe src="/rawmap/" width="100%" height = 800px frameborder="0" name="map_pages"></iframe>
 
 {% endblock sb_admin_content %}
