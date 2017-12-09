@@ -6,9 +6,20 @@
 
 /* Global Styles */
 
+#mainheader {
+    font-size: 72px;
+}
+
+#trybutton {
+    width: 100px;
+    background-color: #73757a;
+    border-color: #73757a;
+}
+
 body {
     margin-top: 100px;
     background-color: #222;
+    font-family: 'Raleway';
 }
 
 @media(min-width:768px) {
