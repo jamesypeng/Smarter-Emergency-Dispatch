@@ -10,14 +10,15 @@
 {% block sb_admin_content %}
 <div class="row">
     <div class="col-lg-12">
-        <h2>Bordered Table</h2>
         <header class="masthead d-flex">
-            <div class="container text-center my-auto">
-                <h1 class="mb-1">Stylish Portfolio 1111</h1>
+            {% load static %}
+            <div class="container text-center my-auto" style="background-image: url('{% static "ambulance.jpg" %}');">
+                <h1 class="mb-1">SmartDispatch</h1>
                 <h3 class="mb-5">
-                    <em>A Free Bootstrap Theme by Start Bootstrap</em>
+                    <em>A smarter way to streamline the emergency dispatch process</em>
+
                 </h3>
-                <a class="btn btn-primary btn-xl js-scroll-trigger" href="about">Find Out More</a>
+                <a class="btn btn-primary btn-xl js-scroll-trigger" href="about">Try it out yourself!</a>
             </div>
             <div class="overlay"></div>
         </header>
