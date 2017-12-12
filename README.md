@@ -19,6 +19,9 @@ By bringing predictive analytics and automation to emergency call centers, Smart
 
 ###### Contact Us
 Melanie Costello: melanie.costello@berkeley.edu
+
 Priya Gupta: priyagupta@berkeley.edu
+
 Jason Harville: jlharville@berkeley.edu
+
 James Peng: james.y.peng@berkeley.edu
